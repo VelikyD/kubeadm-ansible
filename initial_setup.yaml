@@ -19,6 +19,7 @@
       group:
         name: wheel
         state: present
+      sudo: yes
 
     - name: Allow 'wheel' group to have passwordless sudo
       lineinfile:
@@ -27,6 +28,7 @@
         regexp: '^%wheel'
         line: '%wheel ALL=(ALL) NOPASSWD: ALL'
         validate: '/usr/sbin/visudo -cf %s'
+      sudo: yes
 
     - name: Create a new regular user with sudo privileges
       user:
@@ -36,12 +38,14 @@
         append: true
         create_home: true
         shell: /bin/bash
+      sudo: yes
 
     - name: Set authorized key for remote user
       authorized_key:
         user: "{{ create_user }}"
         state: present
         key: "{{ copy_local_key }}"
+      sudo: yes
 
     - name: Disable password authentication for root
       lineinfile:
@@ -49,12 +53,15 @@
         state: present
         regexp: '^#?PermitRootLogin'
         line: 'PermitRootLogin prohibit-password'
+      sudo: yes
 
     - name: Update apt
       apt: update_cache=yes
+      sudo: yes
 
     - name: Install required system packages
       apt: name={{ sys_packages }} state=latest
+      sudo: yes
 
 #    - name: UFW - Allow SSH connections
 #      ufw:
